@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Purchase Orders</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <h1>Purchase Order</h1>
+
+  <label>Product: <input id="poProduct"></label>
+  <label>Unit: <input id="poUom"></label>
+  <label>Quantity: <input id="poQty" type="number"></label>
+  <label>Branch: <input id="poBranch"></label>
+  <button id="btnSubmitPO">Submit Order</button>
+
+  <h2>Today's Orders</h2>
+  <table border="1">
+    <thead>
+      <tr><th>Product</th><th>Unit</th><th>Qty</th><th>Branch</th><th>Status</th></tr>
+    </thead>
+    <tbody id="poTable"></tbody>
+  </table>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getDatabase, ref, push, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2jSob5blKCnBoFWn6Skx3kSg4rUKAGqQ",
+      authDomain: "production-3e150.firebaseapp.com",
+      databaseURL: "https://production-3e150-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "production-3e150",
+      storageBucket: "production-3e150.firebasestorage.app",
+      messagingSenderId: "287631316111",
+      appId: "1:287631316111:web:2ebd4957b4e022ae534cfa"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const poProduct = document.getElementById("poProduct");
+    const poUom = document.getElementById("poUom");
+    const poQty = document.getElementById("poQty");
+    const poBranch = document.getElementById("poBranch");
+    const btnSubmitPO = document.getElementById("btnSubmitPO");
+    const poTable = document.getElementById("poTable");
+
+    function todayKey() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    btnSubmitPO.onclick = () => {
+      const data = {
+        product: poProduct.value,
+        uom: poUom.value,
+        quantity: +poQty.value,
+        branch: poBranch.value,
+        status: "pending",
+        timestamp: serverTimestamp()
+      };
+      push(ref(db, "purchaseOrders/" + todayKey()), data);
+      poProduct.value = poUom.value = poBranch.value = "";
+      poQty.value = "";
+    };
+
+    onValue(ref(db, "purchaseOrders/" + todayKey()), (snap) => {
+      poTable.innerHTML = "";
+      snap.forEach(child => {
+        const po = child.val();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${po.product}</td><td>${po.uom}</td><td>${po.quantity}</td><td>${po.branch}</td><td>${po.status}</td>`;
+        poTable.appendChild(tr);
+      });
+    });
+
+    signInAnonymously(auth);
+  </script>
+</body>
+</html>
