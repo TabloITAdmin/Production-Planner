@@ -83,13 +83,31 @@
 			<div class="content">
 			  <label>Product Name <input id="p_name" placeholder="e.g. Garlic Shrimp"/></label>
 			  <div class="row">
-				<label>Unit of Measurement <input id="p_uom" placeholder="e.g. pack, kg, tray"/></label>
-				<label>Estimated Qty <input id="p_qty" type="number" min="0" step="1" placeholder="e.g. 50"/></label>
-			  </div>
+  <label>Start Wt (kg) 
+    <input id="p_startWeight" type="number" min="0" step="0.01" placeholder="e.g. 10"/>
+  </label>
+
+  <label>Unit of Measurement 
+    <input id="p_uom" placeholder="e.g. pack, kg, tray"/>
+  </label>
+</div>
+
+<label>Estimated Qty 
+  <input id="p_qty" type="number" min="0" step="1" placeholder="e.g. 50"/>
+</label>
 			  <div class="row">
-				<label>Person in Charge (Cook) <input id="p_picCook" placeholder="e.g. Ana"/></label>
-				<label>Cooking Time (mins) <input id="p_cookTime" type="number" min="0" step="1" placeholder="e.g. 45"/></label>
-			  </div>
+  <label>Person in Charge (Cook) 
+    <input id="p_picCook" placeholder="e.g. Ana"/>
+  </label>
+
+  <label>Equipment 
+    <input id="p_equipment" placeholder="e.g. Steamer, Fryer"/>
+  </label>
+</div>
+
+<label>Cooking Time (mins) 
+  <input id="p_cookTime" type="number" min="0" step="1" placeholder="e.g. 45"/>
+</label>
 			  <div class="row">
 				<label>Person in Charge (Repack) <input id="p_picRepack" placeholder="e.g. Ben"/></label>
 				<label>Repack Time (mins) <input id="p_repackTime" type="number" min="0" step="1" placeholder="e.g. 20"/></label>
@@ -135,9 +153,11 @@
 				<tr>
 				  <th>#</th>
 				  <th>Product</th>
-				  <th>UoM</th>
+          <th>Start Wt (kg)</th>
+          <th>UoM</th>
 				  <th>PIC (Cook)</th>
-				  <th>Cooking Time</th>
+          <th>Equipment</th>
+          <th>Cooking Time</th>
 				  <th>PIC (Repack)</th>
 				  <th>Repack Time</th>
 				  <th class="right">Est. Qty</th>
@@ -192,6 +212,8 @@
     const btnDeleteSelected = document.getElementById('btnDeleteSelected');
     const btnClearToday = document.getElementById('btnClearToday');
     const prodTbody = document.getElementById('prodTbody');
+    const p_startWeight = document.getElementById('p_startWeight');
+    const p_equipment = document.getElementById('p_equipment');
 
     const todayISO = () => {
       const d = new Date();
@@ -213,27 +235,33 @@
       p_cookTime.value = '';
       p_picRepack.value = '';
       p_repackTime.value = '';
+      p_startWeight.value = '';
+      p_equipment.value = '';
     }
     function productFromForm() {
       const name = p_name.value.trim();
       if (!name) throw new Error('Product name is required.');
       return {
-        name,
-        uom: p_uom.value.trim() || '',
-        estQty: Number(p_qty.value || 0),
-        picCook: p_picCook.value.trim() || '',
-        cookTime: Number(p_cookTime.value || 0),
-        picRepack: p_picRepack.value.trim() || '',
-        repackTime: Number(p_repackTime.value || 0)
-      };
+  name,
+  startWeight: Number(p_startWeight.value || 0),
+  uom: p_uom.value.trim() || '',
+  estQty: Number(p_qty.value || 0),
+  picCook: p_picCook.value.trim() || '',
+  equipment: p_equipment.value.trim() || '',
+  cookTime: Number(p_cookTime.value || 0),
+  picRepack: p_picRepack.value.trim() || '',
+  repackTime: Number(p_repackTime.value || 0)
+};
     }
     function rowTemplate(idx, id, item) {
       return `
         <tr data-id="${id}">
           <td>${idx}</td>
           <td>${item.name}</td>
+          <td>${item.startWeight ?? 0}</td>
           <td>${item.uom}</td>
           <td>${item.picCook}</td>
+          <td>${item.equipment || ''}</td>
           <td>${item.cookTime} mins</td>
           <td>${item.picRepack}</td>
           <td>${item.repackTime} mins</td>
